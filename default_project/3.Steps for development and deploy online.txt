@@ -1,0 +1,87 @@
+Replace all <project_name> in all files with the actual name of the project and also in this file
+cp -r env_example/ .env
+change the passwords in .env/development/database and .env/production/database
+change the SECRET_KEY_BASE .env/production/web
+mv .env/development/web .env/development/web_<project_name>
+mv .env/development/database .env/development/database_<project_name>
+mv .env/production/web .env/production/web_<project_name>
+mv .env/production/database .env/production/database_<project_name>
+mv docker-compose-project_name.yml docker-compose-<project_name>.yml
+
+?Create a new project
+    docker build -t rails-toolbox-<project_name> --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) -f Dockerfile.rails .
+    docker run -it --rm -v $PWD:/opt/app rails-toolbox-<project_name> rails new -d postgresql --skip-bundle <project_name>
+
+?Create the development environment
+    Move docker-entrypoint.sh and wait-for inside the <project_name> folder
+        chmod +x <project_name>/docker-entrypoint.sh #make it executable
+    *Postgresql
+        in database.yml modificari:
+            in default:
+                ...
+                pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+                host: <%= ENV.fetch("DATABASE_HOST"){ 'none'}  %>
+                username: <%= ENV.fetch("POSTGRES_USER"){ 'none'}  %>
+                password: <%= ENV.fetch("POSTGRES_PASSWORD"){ 'none'}  %>
+                database: <%= ENV.fetch("POSTGRES_DB"){ 'none'}  %>
+                timeout: 5000
+            in development sa ramana doar <<: *default
+            in production sa ramana doar <<: *default
+    cd ..
+    cd <project_name>
+    docker-compose run --rm --user "$(id -u):$(id -g)" web_<project_name> bin/rails webpacker:install
+    in config/webpacker.yml
+        development:
+            ...
+            dev_server:
+                ...
+                port: 3036 #change this
+                public: localhost:3036 #change this
+                ...
+                watch_options:
+                    ...
+                    poll: true
+    in config/environments/development
+	    comment config.action_view.annotate_rendered_view_with_filenames = true
+    cd ..
+    cd <project_name>
+    change in docker-compose.yml 
+        services:
+            web_aplicatie2:
+                ports:
+                - "3001:3000" #change only external port
+            webpack_dev_server_aplicatie2:
+                ports: 
+                - "3036:3036" #change this
+    docker-compose up
+
+?Use it in development
+    Generate a scaffold
+        docker-compose exec web_<project_name> bin/rails g scaffold User first_name last_name
+        docker-compose exec web_<project_name> bin/rails db:migrate
+    Adding a gem
+        docker-compose exec web_<project_name> bundle install
+
+?Configuring the production environment
+    docker build -f Dockerfile.prod -t alexrogna/<project_name>_web:prod --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
+    docker push alexrogna/<project_name>_web:prod
+
+?Create online deployment
+    creeaza subdomeniu pe linode
+    ssh login
+        nano docker-compose-<project_name>.yml
+            copiaza din docker-compose-<project_name>.yml 
+        nano .env/production/database_<project_name>
+            copiaza din .env/production/database_<project_name>
+        nano .env/production/web_<project_name>
+            copiaza din .env/production/web_<project_name>
+        docker-compose -f docker-compose-<project_name>.yml up
+
+?Update online deployment
+    on development machine 
+        docker build -f Dockerfile.prod -t alexrogna/<project_name>_web:prod --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
+        docker push alexrogna/<project_name>_web:prod
+    on the server
+        docker-compose -f docker-compose-<project_name>.yml stop
+        docker-compose -f docker-compose-<project_name>.yml pull
+        docker-compose -f docker-compose-<project_name>.yml up

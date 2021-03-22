@@ -1,0 +1,12 @@
+Login pe server
+nano docker-compose.yml
+version: "3"  # optional since v1.27.0
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    ports:
+    - "80:80"
+    volumes:
+    - /var/run/docker.sock:/tmp/docker.sock
+    restart: always
+mkdir .env/ .env/production
