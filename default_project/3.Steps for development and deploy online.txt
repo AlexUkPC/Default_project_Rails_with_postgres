@@ -6,6 +6,10 @@ mv .env/development/web .env/development/web_<project_name>
 mv .env/development/database .env/development/database_<project_name>
 mv .env/production/web .env/production/web_<project_name>
 mv .env/production/database .env/production/database_<project_name>
+mv env_example/development/web env_example/development/web_<project_name>
+mv env_example/development/database env_example/development/database_<project_name>
+mv env_example/production/web env_example/production/web_<project_name>
+mv env_example/production/database env_example/production/database_<project_name>
 mv docker-compose-project_name.yml docker-compose-<project_name>.yml
 
 ?Create a new project
@@ -61,6 +65,13 @@ mv docker-compose-project_name.yml docker-compose-<project_name>.yml
         docker-compose exec web_<project_name> bin/rails db:migrate
     Adding a gem
         docker-compose exec web_<project_name> bundle install
+?Move to another development machine
+    delete from .gitignore packs...
+    git clone https://github.com/... --config core.autocrlf=input
+    change env_example to .env
+    docker-compose run --rm <project_name> bin/rails webpacker:install (when ask to override webpacker.yml answer n)
+    docker-compose up
+    migrate db
 
 ?Configuring the production environment
     docker build -f Dockerfile.prod -t alexrogna/<project_name>_web:prod --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
