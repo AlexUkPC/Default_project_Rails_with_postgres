@@ -1,6 +1,6 @@
 Login pe server
 nano docker-compose.yml
-version: "3"  # optional since v1.27.0
+version: "3.7"
 services:
   nginx-proxy:
     image: jwilder/nginx-proxy
@@ -10,3 +10,40 @@ services:
     - /var/run/docker.sock:/tmp/docker.sock
     restart: always
 mkdir .env/ .env/production
+
+
+Pt Https
+nano docker-compose.yml
+version: "2"
+
+services:
+  nginx-proxy:
+    image: jwilder/nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/vhost.d
+      - /etc/nginx/certs
+      - /usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy
+    restart: always
+  ssl-generator:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/acme.sh
+    networks:
+      - proxy
+
+networks:
+  proxy:
+
+mkdir .env/ .env/production
+
+

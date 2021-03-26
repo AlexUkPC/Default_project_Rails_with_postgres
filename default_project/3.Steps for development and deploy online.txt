@@ -1,7 +1,7 @@
 Replace all <project_name> in all files with the actual name of the project and also in this file
 cp -r env_example/ .env
 change the passwords in .env/development/database and .env/production/database
-change the SECRET_KEY_BASE .env/production/web
+
 mv .env/development/web .env/development/web_<project_name>
 mv .env/development/database .env/development/database_<project_name>
 mv .env/production/web .env/production/web_<project_name>
@@ -66,7 +66,6 @@ mv docker-compose-project_name.yml docker-compose-<project_name>.yml
     Adding a gem
         docker-compose exec web_<project_name> bundle install
 ?Move to another development machine
-    delete from .gitignore packs...
     git clone https://github.com/... --config core.autocrlf=input
     change env_example to .env
     docker-compose run --rm <project_name> bin/rails webpacker:install (when ask to override webpacker.yml answer n)
@@ -74,6 +73,7 @@ mv docker-compose-project_name.yml docker-compose-<project_name>.yml
     migrate db
 
 ?Configuring the production environment
+    change the SECRET_KEY_BASE .env/production/web
     docker build -f Dockerfile.prod -t alexrogna/<project_name>_web:prod --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .
     docker push alexrogna/<project_name>_web:prod
 
@@ -87,7 +87,11 @@ mv docker-compose-project_name.yml docker-compose-<project_name>.yml
         nano .env/production/web_<project_name>
             copiaza din .env/production/web_<project_name>
         docker-compose -f docker-compose-<project_name>.yml up
-
+        docker network connect <root_proxy_network_id> <container_id>
+            <root_proxy_network_id> se obtine cu docker network ls
+            <container_id> se obtine cu docker ps
+        restart container
+        
 ?Update online deployment
     on development machine 
         docker build -f Dockerfile.prod -t alexrogna/<project_name>_web:prod --build-arg USER_ID=$(id -u) --build-arg GROUP_ID=$(id -g) .

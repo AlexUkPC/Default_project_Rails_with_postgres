@@ -8,7 +8,9 @@ services:
       - .env/production/database_<project_name>
       - .env/production/web_<project_name>
     environment:
-      - "VIRTUAL_HOST=<project_name>.alexrogna.com"
+      - VIRTUAL_HOST=<project_name>.alexrogna.com
+      - VIRTUAL_PORT=3000
+      - LETSENCRYPT_HOST=<project_name>.alexrogna.com
     restart: always
 
   database_<project_name>:
