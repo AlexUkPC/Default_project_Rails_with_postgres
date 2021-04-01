@@ -21,6 +21,6 @@ RUN bundle install
 COPY <project_name>/ $INSTALL_PATH
 
 RUN chown -R user:user $INSTALL_PATH
-USER $USER_ID
+#USER $USER_ID
 ENTRYPOINT [ "./docker-entrypoint.sh" ]
 CMD [ "bin/rails", "s", "-b", "0.0.0.0" ]

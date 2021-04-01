@@ -57,12 +57,18 @@ mv docker-compose-project_name.yml docker-compose-<project_name>.yml
             webpack_dev_server_aplicatie2:
                 ports: 
                 - "3036:3036" #change this
-    docker-compose up
+    in config/environments/development add
+	config.hosts << "<project_name>.local"
+    in Windows/system32/drivers/etc/hosts
+	add 127.65.43.next <project_name>.local
+    in admin elevated cmd 
+	netsh interface portproxy add v4tov4 listenport=80 listenaddress=127.65.43.next connectport=300next connectaddress=127.0.0.1
+    docker-compose up -d
 
 ?Use it in development
     Generate a scaffold
-        docker-compose exec web_<project_name> bin/rails g scaffold User first_name last_name
-        docker-compose exec web_<project_name> bin/rails db:migrate
+        docker-compose exec --user "$(id -u):$(id -g)" web_<project_name> bin/rails g scaffold User first_name last_name
+        docker-compose exec --user "$(id -u):$(id -g)" web_<project_name> bin/rails db:migrate
     Adding a gem
         docker-compose exec web_<project_name> bundle install
 ?Move to another development machine
