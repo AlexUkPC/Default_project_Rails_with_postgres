@@ -110,3 +110,15 @@ mv docker-compose-project_name.yml docker-compose-<project_name>.yml
             <root_proxy_network_id> se obtine cu docker network ls
             <container_id> se obtine cu docker ps
         restart container
+
+?add redis
+    in docker-compose.yml
+        redis_<project_name>:
+            image: redis
+    in docker-compose-<project_name>.yml
+        redis_<project_name>:
+            image: redis
+            restart: always
+    in Gemfile uncomment redis and run bundle install
+    in cable.yml or wherever is the path for redis server change to redis_<project_name>:6379
+    and also in production you need to connect the redis container to network
