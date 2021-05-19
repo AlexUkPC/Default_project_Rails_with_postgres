@@ -16,6 +16,8 @@ services:
       - .env/development/web_<project_name>
     environment: 
       - WEBPACKER_DEV_SERVER_HOST=webpack_dev_server_<project_name>
+    networks:
+      - network
   webpack_dev_server_<project_name>:
     build:
       context: .
@@ -33,12 +35,18 @@ services:
       - .env/development/web_<project_name>
     environment: 
       - WEBPACKER_DEV_SERVER_HOST=0.0.0.0
+    networks:
+      - network
   database_<project_name>:
     image: postgres
     env_file: 
       - .env/development/database_<project_name>
     volumes: 
       - db_data_<project_name>:/var/lib/postgresql/data
+    networks:
+      - network
 volumes: 
   db_data_<project_name>:
   gem_cache_<project_name>:
+networks:
+  network:
